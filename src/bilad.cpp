@@ -1,6 +1,11 @@
 #include <bilad.h>
 
-std::tuple<GraphPath, bool> bilad(const AdjMat &m1, const AdjMat &m2) {
+namespace BiLAD{
+std::tuple<GraphPath, bool> bilad(const Graph &graph) {
     return std::tuple<GraphPath, bool>();
 }
+
+}
+
+
 

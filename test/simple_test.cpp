@@ -1,7 +1,110 @@
 #include<gtest/gtest.h>
 #include<bilad.h>
+#include<fstream>
+#include<string>
 #include<iostream>
+#include<unistd.h>
 
-TEST(simple_test, first_test){
-    EXPECT_EQ(1+1,2);
+using namespace BiLAD;
+
+TEST(simple_test, sigle_weight_direct_path){
+    Graph m(3);
+    m.add_edge(0,1,13,0);
+    m.add_edge(0,2,10,0);
+    m.add_edge(1,2,3,0);
+    auto [p1,p2]=biweight_dijkstra(m,0,2,0);
+    EXPECT_EQ(p1,(GraphPath{0,2}));
+    EXPECT_EQ(p2,(GraphPath{0,2}));
+}
+TEST(simple_test, sigle_weight_intermediate_path){
+    Graph m(3);
+    m.add_edge(0,1,3,0);
+    m.add_edge(0,2,10,0);
+    m.add_edge(1,2,3,0);
+    auto [p1,p2]=biweight_dijkstra(m,0,2,0);
+    EXPECT_EQ(p1,(GraphPath{0,1,2}));
+    EXPECT_EQ(p2,(GraphPath{0,1,2}));
+}
+TEST(simple_test, double_weight_test_1){
+    Graph m(5);
+    m.add_edge(0,4,10,10);
+    m.add_edge(0,2,1,1);
+    m.add_edge(2,4,1,1);
+    m.add_edge(0,1,1,2);
+    m.add_edge(1,4,2,1);
+    m.add_edge(0,3,3,3);
+    m.add_edge(3,4,1,1);
+    m.add_edge(1,2,1,1);
+    m.add_edge(2,3,1,1);
+    auto [p1,p2]=biweight_dijkstra(m,0,4,1);
+    EXPECT_EQ(p1,(GraphPath{0,2,4}));
+    EXPECT_EQ(p2,(GraphPath{0,2,4}));
+}
+TEST(simple_test, double_weight_test_2){
+    Graph m(5);
+    m.add_edge(0,4,10,10);
+    m.add_edge(0,2,1,1);
+    m.add_edge(2,4,1,1);
+    m.add_edge(0,1,2,0);
+    m.add_edge(1,4,2,0);
+    m.add_edge(0,3,0,2);
+    m.add_edge(3,4,0,2);
+    m.add_edge(1,2,1,1);
+    m.add_edge(2,3,1,1);
+    auto [p1,p2]=biweight_dijkstra(m,0,4,1);
+    EXPECT_EQ(p1,(GraphPath{0,3,4}));
+    EXPECT_EQ(p2,(GraphPath{0,1,4}));
+}
+
+TEST(simple_test, double_weight_test_3){
+    {
+        Graph m(6);
+        m.add_edge(0, 2, 2, 2);
+        m.add_edge(2, 3, 2, 2);
+        m.add_edge(3, 5, 2, 2);
+        m.add_edge(0, 3, 5, 5);
+        m.add_edge(2, 5, 5, 5);
+
+        auto[p1, p2]=biweight_dijkstra(m, 0, 5, 1);
+        EXPECT_EQ(p1, (GraphPath{0, 2, 3, 5}));
+        EXPECT_EQ(p2, (GraphPath{0, 2, 3, 5}));
+    }
+    {
+        Graph m(6);
+        m.add_edge(0, 2, 1, 1);
+        m.add_edge(2, 3, 1, 1);
+        m.add_edge(3, 5, 1, 1);
+        m.add_edge(2, 5, 3, 1);
+
+        auto[p1, p2]=biweight_dijkstra(m, 0, 5, 1);
+        EXPECT_EQ(p1, (GraphPath{0, 2, 3, 5}));
+        EXPECT_EQ(p2, (GraphPath{0, 2, 5}));
+    }
+}
+
+TEST(simple_test,double_weight_external){
+    for(int i=1;i<=10;++i){
+        std::string filename="data/Id_"+std::to_string(i)+".txt";
+        std::fstream f(filename);
+        if(!f){
+            std::cerr<<"failed to open "<<filename<<std::endl;
+            EXPECT_EQ(static_cast<bool>(f),true);
+        }
+        std::string b;
+        f>>b>>b>>b>>b>>b;
+        Graph m(20);
+        int id,src,dest,c,d;
+        while(f>>id>>src>>dest>>c>>d){
+            m.add_edge(src,dest,c,d);
+        }
+        auto [p1,p2]=biweight_dijkstra(m,3,19,1);
+        for(auto v:p1){
+            std::cout<<v<<"->";
+        }
+        std::cout<<'\n';
+        for(auto v:p2){
+            std::cout<<v<<"->";
+        }
+        std::cout<<std::endl<<std::endl;
+    }
 }

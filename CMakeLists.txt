@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(HEADER_LIST "${BiLAD_SOURCE_DIR}/include/bilad.h")
-add_library(BiLAD src/biweight_dijkstra.cpp src/bilad.cpp src/exact_bilad.cpp ${HEADER_LIST})
+add_library(BiLAD src/utils.cpp src/biweight_dijkstra.cpp src/bilad.cpp src/exact_bilad.cpp ${HEADER_LIST})
 target_include_directories(BiLAD PUBLIC ${BiLAD_SOURCE_DIR}/include)
 
 # test

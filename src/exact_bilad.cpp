@@ -1,5 +1,8 @@
 #include <bilad.h>
 
-GraphPath exact_bilad(const AdjMat &m1, const AdjMat &m2) {
+namespace BiLAD{
+GraphPath exact_bilad(const Graph &graph) {
     return GraphPath();
+}
+
 }
