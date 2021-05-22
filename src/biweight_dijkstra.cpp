@@ -41,7 +41,7 @@ std::tuple<GraphPath, GraphPath> biweight_dijkstra(const Graph &graph, size_t sr
 
                 c_prev[v]=curr;
                 d_prev[v]=curr;
-            } else if (abs(dist[v] - new_dist) < 1e-5) {
+            } else if (abs(dist[v] - new_dist) < EPSILON) {
                 weight_t new_c_dist=c_dist[curr]+w.first;
                 if(c_dist[v]>new_c_dist){
                     c_dist[v]=new_c_dist;
@@ -70,7 +70,7 @@ std::tuple<GraphPath, GraphPath> biweight_dijkstra(const Graph &graph, size_t sr
     d_path.push_back(src);
     reverse(d_path.begin(),d_path.end());
 
-    return make_tuple(c_path,d_path);
+    return {c_path, d_path};
 }
 
 }

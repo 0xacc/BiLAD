@@ -3,7 +3,6 @@
 #include<fstream>
 #include<string>
 #include<iostream>
-#include<unistd.h>
 
 using namespace BiLAD;
 
@@ -15,6 +14,10 @@ TEST(simple_test, sigle_weight_direct_path){
     auto [p1,p2]=biweight_dijkstra(m,0,2,0);
     EXPECT_EQ(p1,(GraphPath{0,2}));
     EXPECT_EQ(p2,(GraphPath{0,2}));
+    EXPECT_EQ(m.d_dist(p1),0);
+    EXPECT_EQ(m.d_dist(p2),0);
+    EXPECT_EQ(m.c_dist(p1),10);
+    EXPECT_EQ(m.c_dist(p2),10);
 }
 TEST(simple_test, sigle_weight_intermediate_path){
     Graph m(3);
@@ -24,6 +27,10 @@ TEST(simple_test, sigle_weight_intermediate_path){
     auto [p1,p2]=biweight_dijkstra(m,0,2,0);
     EXPECT_EQ(p1,(GraphPath{0,1,2}));
     EXPECT_EQ(p2,(GraphPath{0,1,2}));
+    EXPECT_EQ(m.d_dist(p1),0);
+    EXPECT_EQ(m.d_dist(p2),0);
+    EXPECT_EQ(m.c_dist(p1),6);
+    EXPECT_EQ(m.c_dist(p2),6);
 }
 TEST(simple_test, double_weight_test_1){
     Graph m(5);
@@ -39,6 +46,10 @@ TEST(simple_test, double_weight_test_1){
     auto [p1,p2]=biweight_dijkstra(m,0,4,1);
     EXPECT_EQ(p1,(GraphPath{0,2,4}));
     EXPECT_EQ(p2,(GraphPath{0,2,4}));
+    EXPECT_EQ(m.d_dist(p1),2);
+    EXPECT_EQ(m.d_dist(p2),2);
+    EXPECT_EQ(m.c_dist(p1),2);
+    EXPECT_EQ(m.c_dist(p2),2);
 }
 TEST(simple_test, double_weight_test_2){
     Graph m(5);
@@ -54,6 +65,10 @@ TEST(simple_test, double_weight_test_2){
     auto [p1,p2]=biweight_dijkstra(m,0,4,1);
     EXPECT_EQ(p1,(GraphPath{0,3,4}));
     EXPECT_EQ(p2,(GraphPath{0,1,4}));
+    EXPECT_EQ(m.d_dist(p1),4);
+    EXPECT_EQ(m.d_dist(p2),0);
+    EXPECT_EQ(m.c_dist(p1),0);
+    EXPECT_EQ(m.c_dist(p2),4);
 }
 
 TEST(simple_test, double_weight_test_3){
@@ -68,6 +83,10 @@ TEST(simple_test, double_weight_test_3){
         auto[p1, p2]=biweight_dijkstra(m, 0, 5, 1);
         EXPECT_EQ(p1, (GraphPath{0, 2, 3, 5}));
         EXPECT_EQ(p2, (GraphPath{0, 2, 3, 5}));
+        EXPECT_EQ(m.d_dist(p1),6);
+        EXPECT_EQ(m.d_dist(p2),6);
+        EXPECT_EQ(m.c_dist(p1),6);
+        EXPECT_EQ(m.c_dist(p2),6);
     }
     {
         Graph m(6);
@@ -79,6 +98,10 @@ TEST(simple_test, double_weight_test_3){
         auto[p1, p2]=biweight_dijkstra(m, 0, 5, 1);
         EXPECT_EQ(p1, (GraphPath{0, 2, 3, 5}));
         EXPECT_EQ(p2, (GraphPath{0, 2, 5}));
+        EXPECT_EQ(m.d_dist(p1),3);
+        EXPECT_EQ(m.d_dist(p2),2);
+        EXPECT_EQ(m.c_dist(p1),3);
+        EXPECT_EQ(m.c_dist(p2),4);
     }
 }
 
@@ -97,13 +120,61 @@ TEST(simple_test,double_weight_external){
         while(f>>id>>src>>dest>>c>>d){
             m.add_edge(src,dest,c,d);
         }
-        auto [p1,p2]=biweight_dijkstra(m,3,19,1);
-        for(auto v:p1){
-            std::cout<<v<<"->";
+
+        {
+            auto[p1, p2]=biweight_dijkstra(m, 3, 19, 0);
+            for (auto v:p1) {
+                std::cout << v << "->";
+            }
+            std::cout << '[' << "cost: " << m.c_dist(p1) << ", delay: " << m.d_dist(p1) << ']';
+            std::cout << '\n';
+            for (auto v:p2) {
+                std::cout << v << "->";
+            }
+            std::cout << '[' << "cost: " << m.c_dist(p2) << ", delay: " << m.d_dist(p2) << ']';
+            std::cout << '\n';
         }
-        std::cout<<'\n';
-        for(auto v:p2){
-            std::cout<<v<<"->";
+        {
+            auto[p1, p2]=biweight_dijkstra(m, 3, 19, 1, 0);
+            for (auto v:p1) {
+                std::cout << v << "->";
+            }
+            std::cout << '[' << "cost: " << m.c_dist(p1) << ", delay: " << m.d_dist(p1) << ']';
+            std::cout << '\n';
+            for (auto v:p2) {
+                std::cout << v << "->";
+            }
+            std::cout << '[' << "cost: " << m.c_dist(p2) << ", delay: " << m.d_dist(p2) << ']';
+            std::cout << '\n';
+        }
+        auto [p_plus,p_minus,lambda,flag,count]=bilad(m,3,19,24);
+        std::cout<<count<<" times dijkstra calls"<<'\n';
+        if(!flag){
+            if(p_plus.empty()&&p_minus.empty()) {
+                std::cout<<"infeasible!";
+            }else{
+                if(!p_plus.empty()&&!p_minus.empty()){
+                    for (auto v:p_plus)std::cout << v << "->";
+                    std::cout<<'['<<"cost: "<<m.c_dist(p_plus)<<", delay: "<<m.d_dist(p_plus)<<']';
+                    std::cout<<'\n';
+                    for(auto v:p_minus)std::cout<<v<<"->";
+                    std::cout<<'['<<"cost: "<<m.c_dist(p_minus)<<", delay: "<<m.d_dist(p_minus)<<']';
+                }else if (!p_plus.empty()){
+                    for (auto v:p_plus)std::cout << v << "->";
+                    std::cout << '[' << "cost: " << m.c_dist(p_plus) << ", delay: " << m.d_dist(p_plus) << ']';
+                }
+                else if (!p_minus.empty()) {
+                    for (auto v:p_minus)std::cout << v << "->";
+                    std::cout << '[' << "cost: " << m.c_dist(p_minus) << ", delay: " << m.d_dist(p_minus) << ']';
+                }
+            }
+        }else{
+            std::cout<<"gap!\n";
+            for(auto v:p_plus)std::cout<<v<<"->";
+            std::cout<<'['<<"cost: "<<m.c_dist(p_plus)<<", delay: "<<m.d_dist(p_plus)<<']';
+            std::cout<<'\n';
+            for(auto v:p_minus)std::cout<<v<<"->";
+            std::cout<<'['<<"cost: "<<m.c_dist(p_minus)<<", delay: "<<m.d_dist(p_minus)<<']';
         }
         std::cout<<std::endl<<std::endl;
     }
