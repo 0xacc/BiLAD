@@ -57,6 +57,8 @@ std::tuple<GraphPath, GraphPath> biweight_dijkstra(const Graph &graph, size_t sr
         }
     }
 
+    if(!visited[dest])return{{},{}};
+
     GraphPath c_path,d_path;
     size_t i=dest;
     c_path.push_back(dest);
