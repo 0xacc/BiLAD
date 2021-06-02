@@ -25,10 +25,14 @@ namespace BiLAD {
             adj[j].emplace_back(std::make_pair(i, std::make_pair(c, d)));
         }
 
-        void delete_edge(size_t i, size_t j){
+        void add_directed_edge(size_t i, size_t j, weight_t c, weight_t d) {
+            adj[i].emplace_back(std::make_pair(j, std::make_pair(c, d)));
+        }
+
+        void delete_edge(size_t i, size_t j) {
             {
                 auto pos1 = std::find_if(adj[i].begin(), adj[i].end(), [&](const auto &v) { return v.first == j; });
-                if(pos1!=adj[i].end()){
+                if (pos1 != adj[i].end()) {
                     std::swap(*pos1, adj[i].back());
                     adj[i].pop_back();
                 }
@@ -36,23 +40,24 @@ namespace BiLAD {
 
             {
                 auto pos2 = std::find_if(adj[j].begin(), adj[j].end(), [&](const auto &v) { return v.first == i; });
-                if(pos2!=adj[i].end()){
+                if (pos2 != adj[j].end()) {
                     std::swap(*pos2, adj[j].back());
                     adj[j].pop_back();
                 }
             }
         }
 
-        void delete_vertex(const std::unordered_set<size_t> &d){
-            for(auto &edge:adj){
-                for(size_t i=0;i<edge.size();++i){
-                    for(auto v:d){
-                        auto pos=std::find_if(edge.begin(), edge.end(),[&](const auto &val){return val.first==v;});
-                        if(pos!=edge.end())edge.erase(pos);
+        void delete_vertex(const std::unordered_set<size_t> &d) {
+            for (auto &edge:adj) {
+                for (size_t i = 0; i < edge.size(); ++i) {
+                    for (auto v:d) {
+                        auto pos = std::find_if(edge.begin(), edge.end(),
+                                                [&](const auto &val) { return val.first == v; });
+                        if (pos != edge.end())edge.erase(pos);
                     }
                 }
             }
-            for(auto v:d){
+            for (auto v:d) {
                 adj[v].clear();
             }
         }
@@ -105,9 +110,11 @@ namespace BiLAD {
     std::tuple<GraphPath, GraphPath, double, bool, size_t>
     bilad(const Graph &graph, size_t src, size_t dest, weight_t delta);
 
-    std::vector<GraphPath> yen_algorithm(const Graph &graph, size_t src, size_t dest, double lambda, size_t K);
+    std::vector<GraphPath>
+    yen_algorithm(const Graph &graph, size_t src, size_t dest, double lambda, size_t K, size_t *count_ptr = nullptr);
 
-    GraphPath exact_bilad(const Graph &graph, size_t src, size_t dest, double delta);
+    std::tuple<GraphPath, size_t>
+    exact_bilad(const Graph &graph, size_t src, size_t dest, weight_t delta);
 
 }
 #endif //BILAD_BILAD_H
