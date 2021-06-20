@@ -63,7 +63,7 @@ namespace BiLAD {
                 for (const auto &path:A) {
                     bool flag = true;
                     for (size_t j = 0; j <= i; ++j) {
-                        if (path[i] != rootPath[i]) {
+                        if (path[j] != rootPath[j]) {
                             flag = false;
                             break;
                         }
