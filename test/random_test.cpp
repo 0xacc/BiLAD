@@ -108,8 +108,8 @@ TEST(random_test,plotting){
         double bilad_dijkstra=0;
         double exact_bilad_dijkstra=0;
 
-        constexpr size_t reapt_times=150;
-        for(size_t i=0;i<reapt_times;++i){
+        constexpr size_t repeat_times=150;
+        for(size_t i=0; i < repeat_times; ++i){
             constexpr double degree=30;
             Graph g=gen_graph(nodes,1-degree/nodes);
             auto [p1,p2]=biweight_dijkstra(g,0,nodes-1,1,0);
@@ -129,8 +129,8 @@ TEST(random_test,plotting){
             exact_bilad_time+=chrono::duration_cast<chrono::milliseconds>(t4-t3).count();
             exact_bilad_dijkstra+=exact_count;
         }
-        bilad_file<<nodes<<','<<bilad_dijkstra/reapt_times<<','<<bilad_time/reapt_times<<'\n';
-        exact_bilad_file<<nodes<<','<<exact_bilad_dijkstra/reapt_times<<','<<exact_bilad_time/reapt_times<<'\n';
+        bilad_file << nodes << ',' << bilad_dijkstra / repeat_times << ',' << bilad_time / repeat_times << '\n';
+        exact_bilad_file << nodes << ',' << exact_bilad_dijkstra / repeat_times << ',' << exact_bilad_time / repeat_times << '\n';
     }
 }
 
@@ -140,14 +140,14 @@ TEST(random_test,plotting_degree){
     exact_bilad_file<<"degree"<<','<<"dijkstra"<<','<<"time"<<'\n';
 
     constexpr size_t nodes=100;
-    for(size_t degree=1;degree<=100;degree+=1){
+    for(size_t degree=1;degree<=200;degree+=1){
         double bilad_time=0;
         double exact_bilad_time=0;
         double bilad_dijkstra=0;
         double exact_bilad_dijkstra=0;
 
-        constexpr size_t reapt_times=150;
-        for(size_t i=0;i<reapt_times;++i){
+        constexpr size_t repeat_times=150;
+        for(size_t i=0; i < repeat_times; ++i){
             Graph g=gen_graph(nodes,1-degree/static_cast<double>(nodes));
             auto [p1,p2]=biweight_dijkstra(g,0,nodes-1,1,0);
             ASSERT_EQ(g.d_dist(p1),g.d_dist(p2));
@@ -166,7 +166,44 @@ TEST(random_test,plotting_degree){
             exact_bilad_time+=chrono::duration_cast<chrono::milliseconds>(t4-t3).count();
             exact_bilad_dijkstra+=exact_count;
         }
-        bilad_file<<degree<<','<<bilad_dijkstra/reapt_times<<','<<bilad_time/reapt_times<<'\n';
-        exact_bilad_file<<degree<<','<<exact_bilad_dijkstra/reapt_times<<','<<exact_bilad_time/reapt_times<<'\n';
+        bilad_file << degree << ',' << bilad_dijkstra / repeat_times << ',' << bilad_time / repeat_times << '\n';
+        exact_bilad_file << degree << ',' << exact_bilad_dijkstra / repeat_times << ',' << exact_bilad_time / repeat_times << '\n';
     }
 }
+
+TEST(random_test, hist) {
+    fstream bilad_file("bilad_hist.csv", fstream::out), exact_bilad_file("exact_bilad_hist.csv", fstream::out);
+    bilad_file << "dijkstra" << ',' << "time" << '\n';
+    exact_bilad_file << "dijkstra" << ',' << "time" << '\n';
+
+    constexpr size_t nodes=1000;
+    constexpr size_t repeat_times = 500;
+    constexpr double degree=30;
+    double gap=0;
+    for (size_t i = 0; i < repeat_times; ++i) {
+        Graph g = gen_graph(nodes, 1 - degree / static_cast<double>(nodes));
+        auto[p1, p2]=biweight_dijkstra(g, 0, nodes - 1, 1, 0);
+        ASSERT_EQ(g.d_dist(p1), g.d_dist(p2));
+        weight_t delta = g.d_dist(p1);
+        delta *= 2;
+
+        auto t1 = chrono::high_resolution_clock::now();
+        auto[p_plus, p_minus, lambda, flag, bilad_count]=bilad(g, 0, nodes - 1, delta);
+        auto t2 = chrono::high_resolution_clock::now();
+        double bilad_time = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        double bilad_dijkstra = bilad_count;
+
+        if(flag)gap+=1;
+
+        auto t3 = chrono::high_resolution_clock::now();
+        auto[p, exact_count]=exact_bilad(g, 0, nodes - 1, delta);
+        auto t4 = chrono::high_resolution_clock::now();
+        double exact_bilad_time = chrono::duration_cast<chrono::milliseconds>(t4 - t3).count();
+        double exact_bilad_dijkstra = exact_count;
+
+        bilad_file << bilad_dijkstra << ',' << bilad_time << '\n';
+        exact_bilad_file << exact_bilad_dijkstra << ',' << exact_bilad_time << '\n';
+    }
+    cout<<fixed<<setprecision(5)<<"gap rate: "<<gap/repeat_times<<endl;
+}
+
