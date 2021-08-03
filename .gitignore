@@ -34,6 +34,7 @@
 # Editor files
 .idea/*
 .vscode/*
+.cache/*
 
 # build files
 build*
