@@ -1,6 +1,3 @@
 #include <bilad.h>
 
-namespace BiLAD{
-
-
-}
+namespace BiLAD {}
