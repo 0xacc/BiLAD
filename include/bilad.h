@@ -116,5 +116,7 @@ namespace BiLAD {
     std::tuple<GraphPath, size_t>
     exact_bilad(const Graph &graph, size_t src, size_t dest, weight_t delta);
 
+    std::tuple<GraphPath, GraphPath, size_t>
+    PSQSR(const Graph &graph, size_t src, size_t dest, weight_t delta);
 }
 #endif //BILAD_BILAD_H

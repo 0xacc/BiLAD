@@ -20,5 +20,10 @@ add_executable(random_test random_test.cpp)
 target_link_libraries(random_test BiLAD gtest_main)
 gtest_discover_tests(random_test)
 
+add_executable(m_larac PSQSR_test.cpp)
+target_link_libraries(m_larac BiLAD gtest_main)
+gtest_discover_tests(m_larac)
+
 message(STATUS "copying test data files")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/data" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
