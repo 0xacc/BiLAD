@@ -13,12 +13,15 @@ TEST(m_larac, sigle_weight_direct_path) {
     m.add_edge(0, 1, 13, 0);
     m.add_edge(0, 2, 10, 0);
     m.add_edge(1, 2, 3, 0);
+
+    m.preprocess();
+
     auto [p1, p2,count]=PSQSR(m,0,2,0);
     EXPECT_EQ(p1, (GraphPath{0, 2}));
     EXPECT_EQ(p2, (GraphPath{}));
     EXPECT_EQ(m.d_dist(p1), 0);
-    EXPECT_EQ(m.c_dist(p1), 10);
-    EXPECT_EQ(m.weighted_dist(p1, 1), 10);
+    EXPECT_EQ(m.c_dist(p1), 20);
+    EXPECT_EQ(m.weighted_dist(p1, 1), 20);
 }
 
 TEST(m_larac, sigle_weight_intermediate_path) {
@@ -26,12 +29,15 @@ TEST(m_larac, sigle_weight_intermediate_path) {
     m.add_edge(0, 1, 3, 0);
     m.add_edge(0, 2, 10, 0);
     m.add_edge(1, 2, 3, 0);
+
+    m.preprocess();
+
     auto[p1, p2, count]=PSQSR(m, 0, 2, 0);
     EXPECT_EQ(p1, (GraphPath{0, 1, 2}));
     EXPECT_EQ(p2, (GraphPath{}));
     EXPECT_EQ(m.d_dist(p1), 0);
-    EXPECT_EQ(m.c_dist(p1), 6);
-    EXPECT_EQ(m.weighted_dist(p1, 1), 6);
+    EXPECT_EQ(m.c_dist(p1), 12);
+    EXPECT_EQ(m.weighted_dist(p1, 1), 12);
 }
 
 TEST(m_larac, double_weight_test_1) {
@@ -45,9 +51,12 @@ TEST(m_larac, double_weight_test_1) {
     m.add_edge(3, 4, 1, 1);
     m.add_edge(1, 2, 1, 1);
     m.add_edge(2, 3, 1, 1);
+
+    m.preprocess();
+
     auto[p1, p2, count]=PSQSR(m, 0, 4, 1);
     EXPECT_EQ(p1, (GraphPath{0, 2, 4}));
-    EXPECT_EQ(m.d_dist(p1), 2);
-    EXPECT_EQ(m.c_dist(p1), 2);
-    EXPECT_EQ(m.weighted_dist(p1, 1), 4);
+    EXPECT_EQ(m.d_dist(p1), 4);
+    EXPECT_EQ(m.c_dist(p1), 4);
+    EXPECT_EQ(m.weighted_dist(p1, 1), 8);
 }
