@@ -113,139 +113,139 @@ class Graph {
         return dist;
     }
 
-    void preprocess(){
-        for(auto &Edge:adj){
-            for(auto &edge:Edge){
-                edge.second.first*=2;
-                edge.second.second*=2;
+    void preprocess() {
+        for (auto& Edge : adj) {
+            for (auto& edge : Edge) {
+                edge.second.first *= 2;
+                edge.second.second *= 2;
             }
         }
     }
 };
 
-    class TriWeightedGraph {
-    private:
-        using AdjTable = std::vector<
-                std::vector<std::pair<size_t, std::tuple<weight_t, weight_t, weight_t>>>>;
-        AdjTable adj;
+class TriWeightedGraph {
+  private:
+    using AdjTable = std::vector<std::vector<
+        std::pair<size_t, std::tuple<weight_t, weight_t, weight_t>>>>;
+    AdjTable adj;
 
-    public:
-        explicit TriWeightedGraph(size_t n) : adj(n) {}
+  public:
+    explicit TriWeightedGraph(size_t n) : adj(n) {}
 
-        void add_edge(size_t i, size_t j, weight_t c, weight_t d1,weight_t d2) {
-            adj[i].emplace_back(std::make_pair(j, std::make_tuple(c, d1,d2)));
-            adj[j].emplace_back(std::make_pair(i, std::make_tuple(c, d1,d2)));
+    void add_edge(size_t i, size_t j, weight_t c, weight_t d1, weight_t d2) {
+        adj[i].emplace_back(std::make_pair(j, std::make_tuple(c, d1, d2)));
+        adj[j].emplace_back(std::make_pair(i, std::make_tuple(c, d1, d2)));
+    }
+
+    void add_directed_edge(size_t i, size_t j, weight_t c, weight_t d1,
+                           weight_t d2) {
+        adj[i].emplace_back(std::make_pair(j, std::make_tuple(c, d1, d2)));
+    }
+
+    auto& operator[](size_t i) const { return adj[i]; }
+
+    size_t size() const { return adj.size(); }
+
+    weight_t d2_dist(const GraphPath& path) const {
+        weight_t dist = 0;
+        for (size_t i = 1; i < path.size(); ++i) {
+            const auto& edges = adj[path[i - 1]];
+            const auto& target =
+                *std::find_if(edges.begin(), edges.end(),
+                              [&](auto v) { return v.first == path[i]; });
+            dist += std::get<2>(target.second);
         }
+        return dist;
+    }
 
-        void add_directed_edge(size_t i, size_t j, weight_t c, weight_t d1,weight_t d2) {
-            adj[i].emplace_back(std::make_pair(j, std::make_tuple(c, d1, d2)));
+    weight_t d1_dist(const GraphPath& path) const {
+        weight_t dist = 0;
+        for (size_t i = 1; i < path.size(); ++i) {
+            const auto& edges = adj[path[i - 1]];
+            const auto& target =
+                *std::find_if(edges.begin(), edges.end(),
+                              [&](auto v) { return v.first == path[i]; });
+            dist += std::get<1>(target.second);
         }
+        return dist;
+    }
 
-        auto& operator[](size_t i) const { return adj[i]; }
-
-        size_t size() const { return adj.size(); }
-
-        weight_t d2_dist(const GraphPath& path) const {
-            weight_t dist = 0;
-            for (size_t i = 1; i < path.size(); ++i) {
-                const auto& edges = adj[path[i - 1]];
-                const auto& target =
-                        *std::find_if(edges.begin(), edges.end(),
-                                      [&](auto v) { return v.first == path[i]; });
-                dist += std::get<2>(target.second);
-            }
-            return dist;
+    weight_t c_dist(const GraphPath& path) const {
+        weight_t dist = 0;
+        for (size_t i = 1; i < path.size(); ++i) {
+            const auto& edges = adj[path[i - 1]];
+            const auto& target =
+                *std::find_if(edges.begin(), edges.end(),
+                              [&](auto v) { return v.first == path[i]; });
+            dist += std::get<0>(target.second);
         }
+        return dist;
+    }
 
-        weight_t d1_dist(const GraphPath& path) const {
-            weight_t dist = 0;
-            for (size_t i = 1; i < path.size(); ++i) {
-                const auto& edges = adj[path[i - 1]];
-                const auto& target =
-                        *std::find_if(edges.begin(), edges.end(),
-                                      [&](auto v) { return v.first == path[i]; });
-                dist += std::get<1>(target.second);
-            }
-            return dist;
-        }
-
-        weight_t c_dist(const GraphPath& path) const {
-            weight_t dist = 0;
-            for (size_t i = 1; i < path.size(); ++i) {
-                const auto& edges = adj[path[i - 1]];
-                const auto& target =
-                        *std::find_if(edges.begin(), edges.end(),
-                                      [&](auto v) { return v.first == path[i]; });
-                dist += std::get<0>(target.second);
-            }
-            return dist;
-        }
-
-        void preprocess(){
-            for(auto &Edge:adj){
-                for(auto &edge:Edge){
-                    auto &[c,d1,d2]=edge.second;
-                    c*=2;
-                    d1*=2;
-                    d2*=2;
-                }
-            }
-        }
-
-        Graph copy_c_d1()const{
-            Graph g(this->size());
-            for(size_t i=0;i<adj.size();++i){
-                for(auto &edge:adj[i]){
-                    auto &[c,d1,d2]=edge.second;
-                    g.add_directed_edge(i,edge.first,c,d1);
-                }
-            }
-            return g;
-        }
-
-        Graph copy_c_d2()const{
-            Graph g(this->size());
-            for(size_t i=0;i<adj.size();++i){
-                for(auto &edge:adj[i]){
-                    auto &[c,d1,d2]=edge.second;
-                    g.add_directed_edge(i,edge.first,c,d2);
-                }
-            }
-            return g;
-        }
-
-        Graph copy_d1_d2()const{
-            Graph g(this->size());
-            for(size_t i=0;i<adj.size();++i){
-                for(auto &edge:adj[i]){
-                    auto &[c,d1,d2]=edge.second;
-                    g.add_directed_edge(i,edge.first,d1,d1);
-                }
-            }
-            return g;
-        }
-
-        void swap_d1_d2(){
-            for(size_t i=0;i<adj.size();++i){
-                for(auto &edge:adj[i]){
-                    auto &[c,d1,d2]=edge.second;
-                    std::swap(d1,d2);
-                }
+    void preprocess() {
+        for (auto& Edge : adj) {
+            for (auto& edge : Edge) {
+                auto& [c, d1, d2] = edge.second;
+                c *= 2;
+                d1 *= 2;
+                d2 *= 2;
             }
         }
+    }
 
-        Graph copy_c_lambda_d1(double lambda){
-            Graph g(this->size());
-            for(size_t i=0;i<adj.size();++i){
-                for(auto &edge:adj[i]){
-                    auto &[c,d1,d2]=edge.second;
-                    g.add_directed_edge(i,edge.first,c+lambda*d1,d2);
-                }
+    Graph copy_c_d1() const {
+        Graph g(this->size());
+        for (size_t i = 0; i < adj.size(); ++i) {
+            for (auto& edge : adj[i]) {
+                auto& [c, d1, d2] = edge.second;
+                g.add_directed_edge(i, edge.first, c, d1);
             }
-            return g;
         }
-    };
+        return g;
+    }
 
+    Graph copy_c_d2() const {
+        Graph g(this->size());
+        for (size_t i = 0; i < adj.size(); ++i) {
+            for (auto& edge : adj[i]) {
+                auto& [c, d1, d2] = edge.second;
+                g.add_directed_edge(i, edge.first, c, d2);
+            }
+        }
+        return g;
+    }
+
+    Graph copy_d1_d2() const {
+        Graph g(this->size());
+        for (size_t i = 0; i < adj.size(); ++i) {
+            for (auto& edge : adj[i]) {
+                auto& [c, d1, d2] = edge.second;
+                g.add_directed_edge(i, edge.first, d1, d1);
+            }
+        }
+        return g;
+    }
+
+    void swap_d1_d2() {
+        for (size_t i = 0; i < adj.size(); ++i) {
+            for (auto& edge : adj[i]) {
+                auto& [c, d1, d2] = edge.second;
+                std::swap(d1, d2);
+            }
+        }
+    }
+
+    Graph copy_c_lambda_d1(double lambda) {
+        Graph g(this->size());
+        for (size_t i = 0; i < adj.size(); ++i) {
+            for (auto& edge : adj[i]) {
+                auto& [c, d1, d2] = edge.second;
+                g.add_directed_edge(i, edge.first, c + lambda * d1, d2);
+            }
+        }
+        return g;
+    }
+};
 
 std::tuple<GraphPath, GraphPath> biweight_dijkstra(const Graph& graph,
                                                    size_t src, size_t dest,
@@ -264,5 +264,20 @@ std::tuple<GraphPath, size_t> exact_bilad(const Graph& graph, size_t src,
 
 std::tuple<GraphPath, GraphPath, size_t> PSQSR(const Graph& graph, size_t src,
                                                size_t dest, weight_t delta);
+
+typedef std::tuple<GraphPath, GraphPath, double, size_t>
+SCSP(const Graph& graph, size_t src, size_t dest, weight_t delta);
+
+std::tuple<GraphPath, GraphPath, GraphPath, GraphPath, double, double, size_t,
+           size_t>
+new_bilad(TriWeightedGraph& graph, size_t src, size_t dest, weight_t delta1,
+          weight_t delta2, SCSP scsp);
+
+static inline std::tuple<GraphPath, GraphPath, double, size_t>
+bind_bilad(const Graph& graph, size_t src, size_t dest, weight_t delta) {
+    auto [p_c, p_d, lambda, flag, count] = bilad(graph, src, dest, delta);
+    return {p_c, p_d, lambda, count};
+}
+
 } // namespace BiLAD
 #endif // BILAD_BILAD_H

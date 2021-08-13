@@ -9,7 +9,7 @@ using namespace std;
 namespace BiLAD {
 tuple<GraphPath, GraphPath, size_t> PSQSR(const Graph& graph, size_t src,
                                           size_t dest, weight_t delta) {
-    delta*=2;
+    delta *= 2;
 
     vector<double> c_dist(graph.size(), INFINITY);
     vector<double> d_dist(graph.size(), INFINITY);

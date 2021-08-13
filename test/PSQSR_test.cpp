@@ -1,8 +1,8 @@
+#include <bilad.h>
+#include <fstream>
 #include <gtest/gtest.h>
-#include<bilad.h>
-#include<fstream>
-#include<string>
-#include<iostream>
+#include <iostream>
+#include <string>
 
 using namespace BiLAD;
 
@@ -16,7 +16,7 @@ TEST(m_larac, sigle_weight_direct_path) {
 
     m.preprocess();
 
-    auto [p1, p2,count]=PSQSR(m,0,2,0);
+    auto [p1, p2, count] = PSQSR(m, 0, 2, 0);
     EXPECT_EQ(p1, (GraphPath{0, 2}));
     EXPECT_EQ(p2, (GraphPath{}));
     EXPECT_EQ(m.d_dist(p1), 0);
@@ -32,7 +32,7 @@ TEST(m_larac, sigle_weight_intermediate_path) {
 
     m.preprocess();
 
-    auto[p1, p2, count]=PSQSR(m, 0, 2, 0);
+    auto [p1, p2, count] = PSQSR(m, 0, 2, 0);
     EXPECT_EQ(p1, (GraphPath{0, 1, 2}));
     EXPECT_EQ(p2, (GraphPath{}));
     EXPECT_EQ(m.d_dist(p1), 0);
@@ -54,7 +54,7 @@ TEST(m_larac, double_weight_test_1) {
 
     m.preprocess();
 
-    auto[p1, p2, count]=PSQSR(m, 0, 4, 1);
+    auto [p1, p2, count] = PSQSR(m, 0, 4, 1);
     EXPECT_EQ(p1, (GraphPath{0, 2, 4}));
     EXPECT_EQ(m.d_dist(p1), 4);
     EXPECT_EQ(m.c_dist(p1), 4);

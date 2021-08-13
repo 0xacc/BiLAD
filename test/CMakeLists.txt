@@ -24,6 +24,10 @@ add_executable(m_larac PSQSR_test.cpp)
 target_link_libraries(m_larac BiLAD gtest_main)
 gtest_discover_tests(m_larac)
 
+add_executable(new_bilad new_bilad_test.cpp)
+target_link_libraries(new_bilad BiLAD gtest_main)
+gtest_discover_tests(new_bilad)
+
 message(STATUS "copying test data files")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/data" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
