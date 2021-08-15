@@ -37,11 +37,25 @@ bilad(const Graph& graph, size_t src, size_t dest, weight_t delta) {
         double theta = atan(lambda);
         if (abs(theta - (theta_up + theta_down) / 2) >
             (0.5 - decay) * (theta_up - theta_down)) {
+
+            auto [p_c, p_d] = biweight_dijkstra(graph, src, dest, lambda);
+            dijkstra_count++;
+            if (abs(graph.weighted_dist(p_d, lambda) -
+                    graph.weighted_dist(p_plus, lambda)) < EPSILON) {
+                return {p_plus, p_minus, lambda, false, dijkstra_count}; // TODO: set right flag
+            }
+
             theta = (theta_up + theta_down) / 2;
             lambda = tan(theta);
         }
         auto [p_c, p_d] = biweight_dijkstra(graph, src, dest, lambda);
         dijkstra_count++;
+
+        if (abs(graph.weighted_dist(p_d, lambda) -
+                graph.weighted_dist(p_plus, lambda)) < EPSILON) {
+            return {p_plus, p_minus, lambda, false, dijkstra_count}; // TODO: set right flag
+        }
+
         weight_t delay_p_c = graph.d_dist(p_c), delay_p_d = graph.d_dist(p_d);
         if (delay_p_d <= delta && delta <= delay_p_c) {
             p_plus = p_c;
