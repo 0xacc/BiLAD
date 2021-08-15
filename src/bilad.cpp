@@ -42,7 +42,8 @@ bilad(const Graph& graph, size_t src, size_t dest, weight_t delta) {
             dijkstra_count++;
             if (abs(graph.weighted_dist(p_d, lambda) -
                     graph.weighted_dist(p_plus, lambda)) < EPSILON) {
-                return {p_plus, p_minus, lambda, false, dijkstra_count}; // TODO: set right flag
+                return {p_plus, p_minus, lambda, false,
+                        dijkstra_count}; // TODO: set right flag
             }
 
             theta = (theta_up + theta_down) / 2;
@@ -52,8 +53,11 @@ bilad(const Graph& graph, size_t src, size_t dest, weight_t delta) {
         dijkstra_count++;
 
         if (abs(graph.weighted_dist(p_d, lambda) -
-                graph.weighted_dist(p_plus, lambda)) < EPSILON) {
-            return {p_plus, p_minus, lambda, false, dijkstra_count}; // TODO: set right flag
+                graph.weighted_dist(p_plus, lambda)) < EPSILON ||
+            abs(graph.weighted_dist(p_d, lambda) -
+                graph.weighted_dist(p_minus, lambda)) < EPSILON) {
+            return {p_plus, p_minus, lambda, false,
+                    dijkstra_count}; // TODO: set right flag
         }
 
         weight_t delay_p_c = graph.d_dist(p_c), delay_p_d = graph.d_dist(p_d);

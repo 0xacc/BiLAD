@@ -9,8 +9,8 @@ namespace BiLAD {
 
 tuple<GraphPath, GraphPath, GraphPath, GraphPath, double, double, size_t,
       size_t>
-new_bilad(TriWeightedGraph& graph, size_t src, size_t dest, weight_t delta1,
-          weight_t delta2, SCSP scsp) {
+new_bilad(TriWeightedGraph& graph, size_t src, size_t dest, weight_t &delta1,
+          weight_t &delta2, SCSP scsp) {
 
     delta1 = delta1 * 2 + 1;
     delta2 = delta2 * 2 + 1;
@@ -27,8 +27,10 @@ new_bilad(TriWeightedGraph& graph, size_t src, size_t dest, weight_t delta1,
     }
 
     // S2
-    if (graph.d2_dist(p_c) < delta2)
+    if (graph.d2_dist(p_c) < delta2) {
         graph.swap_d1_d2();
+        swap(delta1, delta2);
+    }
     g_c_d1 = graph.copy_c_d1();
     Graph g_c_d2 = graph.copy_c_d2(), g_d1_d2 = graph.copy_d1_d2();
 
@@ -119,7 +121,7 @@ new_bilad(TriWeightedGraph& graph, size_t src, size_t dest, weight_t delta1,
                        (double)(graph.d2_dist(p_plus) - graph.d2_dist(p_minus));
         double u_tilde = (1 - alpha) * graph.d1_dist(p_minus) +
                          alpha * graph.d1_dist(p_plus);
-        if (u_tilde == delta1) {
+        if (abs(u_tilde - delta1) < EPSILON) {
             return {p_plus,   p_minus, {}, {},
                     lambda_1, lambda,  1,  dijkstra_count};
         } else if (u_tilde < delta1) {
@@ -135,8 +137,8 @@ new_bilad(TriWeightedGraph& graph, size_t src, size_t dest, weight_t delta1,
             d1_plus = u_tilde;
             c_plus = (1 - alpha) * graph.c_dist(p_minus) +
                      alpha * graph.c_dist(p_plus);
-            p_minus_high = move(p_minus);
-            p_plus_high = move(p_plus);
+            p_minus_low = move(p_minus);
+            p_plus_low = move(p_plus);
         }
     }
     return {p_plus_high, p_minus_high, p_plus_low, p_minus_low,

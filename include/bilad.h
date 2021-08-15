@@ -220,7 +220,7 @@ class TriWeightedGraph {
         for (size_t i = 0; i < adj.size(); ++i) {
             for (auto& edge : adj[i]) {
                 auto& [c, d1, d2] = edge.second;
-                g.add_directed_edge(i, edge.first, d1, d1);
+                g.add_directed_edge(i, edge.first, d1, d2);
             }
         }
         return g;
@@ -270,8 +270,8 @@ SCSP(const Graph& graph, size_t src, size_t dest, weight_t delta);
 
 std::tuple<GraphPath, GraphPath, GraphPath, GraphPath, double, double, size_t,
            size_t>
-new_bilad(TriWeightedGraph& graph, size_t src, size_t dest, weight_t delta1,
-          weight_t delta2, SCSP scsp);
+new_bilad(TriWeightedGraph& graph, size_t src, size_t dest, weight_t &delta1,
+          weight_t &delta2, SCSP scsp);
 
 static inline std::tuple<GraphPath, GraphPath, double, size_t>
 bind_bilad(const Graph& graph, size_t src, size_t dest, weight_t delta) {
